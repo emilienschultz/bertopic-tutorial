@@ -2,3 +2,5 @@ data/
 **/bootstrap
 **/clipboard
 **/quarto-html
+/.quarto/
+/_site/
