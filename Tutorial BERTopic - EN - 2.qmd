@@ -27,9 +27,9 @@ What are the main issues adressed in a set of documents ? Are those documents si
 
 Until recently, topic modelling techniques — and natural language processing (NLP) in general — heavily relied on word counts, especially bag-of-words approaches. Amongst other limits, those approaches do not take into account the context in which a word is used — the order of the words in a sentence does not matter to those models, thus failing to grasp the complexity of the human language.
 
-To tackle this limit, researchers developed transformations that generate richer and denser representations based on deep learning models. Those models take the text as an entry and generate a vector representation called **embeddings**. BERTopic is a topic model tool designed for Python that leverages transformer models[^14] to generate coherent topics based on the semantic similarity of texts. Since its inception in XXXX, BERTopic has already proven to be useful in various research across social sciences. _For instance, Bizel-Bizellot et al. (2024) used it to identify the main circumstances of infection with COVID-19 based on survey-free-text answers. In the context of climate misinformation, Törnberg & Törnberg (2025) analysed images and texts to highlight trends._
+To tackle this limit, researchers developed transformations that generate richer and denser representations based on deep learning models. Those models take the text as an entry and generate a vector representation called **embeddings**. BERTopic is a topic model tool designed for Python that leverages transformer models[^14] to generate coherent topics based on the semantic similarity of texts. Since its inception in 2022, BERTopic has already proven to be useful in various research across social sciences. _For instance, Bizel-Bizellot et al. (2024) used it to identify the main circumstances of infection with COVID-19 based on survey-free-text answers. In the context of climate misinformation, Törnberg & Törnberg (2025) analysed images and texts to highlight trends._
 
-BERTopic is a brilliant tool, but it opens a lot of possibilities and can take some time to master. In this tutorial, we focus on its general philosophy and how to use it in a social science prospect. We will demonstrate how to start with a text corpus and create a topic model that makes sense. As a use case, we will use the database of all the theses defended between 2010 and 2022 in France and create a topic model to describe what keeps French PhD students busy!
+BERTopic is a brilliant tool that unlocks diverse paths but requires time to master. In this tutorial, we focus on its general philosophy and how to use it in a social science project. We will demonstrate how to start with a text corpus and create a topic model that makes sense. As a use case, we will use the database of all the theses defended between 2010 and 2022 in France and create a topic model to describe what keeps French PhD students busy!
 
 By the end of this tutorial, you should be able to:
 
@@ -43,7 +43,7 @@ We conclude this tutorial with a discussion about the evaluation of topic modell
 
 We don't assume that you have any knowledge about NLP and try our best to explain every step in an agnostic manner. We also provide numerous references if you want to dig deeper.
 
-Nevertheless, you need to have some notions of Python. If you need to refresh your Python skills, you can use [Lino Galina courses](https://pythonds.linogaliana.fr/en/). We assume that:
+Nevertheless, you need to have some notions of Python. If you need to refresh your Python skills, you can use [Lino Galina's courses](https://pythonds.linogaliana.fr/en/). We assume that:
 
 - you have a working environment[^15] and can install packages
 - you know the basic syntax of Python (functions, variables, if-statements, for loops) and you're comfortable enough with Pandas to load your documents and proceed to simple manipulations such as creating, dropping and renaming columns and rows.
@@ -74,7 +74,7 @@ The tutorial comes with some material uploaded on [Zenodo](https://doi.org/10.5
 
 The BERTopic pipeline takes a list of text documents and returns meaningful topics as well as a mapping from the text documents to the said topics. The goal is to be able to gather documents that are semantically close in clusters and then describe these topics for further interpretation. Once you have a set of topics, you can come back to the corpus to describe its composition. 
 
-Here is a basic usage of BERTopic to get your first topics decomposition :
+Here is a basic usage of BERTopic:
 
 ```python
 from bertopic import BERTopic
@@ -111,7 +111,7 @@ The `topic` variable is a list containing integers: for each document, the integ
 <br/>
 The `probabilities` variable is a list of floats: for each document, the float represents how close it is to the topic.
 
-The fitting of the model produces different informations. We can then retrieve topic information that will return keywords that best represent our corpus:
+We can then retrieve topic information that will return keywords that best represent our corpus:
 
 ```python
 topic_info = topic_model.get_topic_info()
@@ -146,17 +146,13 @@ In reality, this example would not run because there are not enough documents! L
 
 Under the hood, BERTopic does three main steps : <!--  meh does-->
 
-- Generates a digital or mathematical **XXX** representation that captures the semantic properties of each document — the embeddings.
-- Based on the embeddings, it will identify groups of documents that are semantically close (this action is called clustering). The hope is that these groups represent latent topics of the corpus.
+- Generates a mathematical representation that captures the semantic properties of each document — **the embeddings**.
+- Based on the embeddings, it will identify groups of documents that are semantically close (this action is called **clustering**). The hope is that these groups represent latent topics of the corpus.
 - For each identified topic/group, it will retrieve keywords that best describe the specificity of each topic.
-
-If you look in the documentation, these three steps are composed of technical blocks, each of them connected to a data treatment. <!--  meh -->
-
-![XXX](./assets/bertopic-general-en.svg){#fig-general-illustration}
 
 ### How to generate the embeddings?
 
-To generate the embeddings we use encoder models. Encoder models are a type of pre-trained transformer models whose job is to encapsulate the semantic of textual data. A good example of encoder is the BERT model and all it's successors like RoBERTa, DeBERTa ... For generating embeddings, BERTopic uses **SBERT**. Encoder models can take in a limitted number of tokens (parts of words), this is called the **context window size**. For smaller models, the context window size is of about 500 tokens (200 words on average) like for BERT and larger models like ModernBERT have a context window size of 8,000 tokens.
+To generate the embeddings we use encoder models. Encoder models are a type of pre-trained transformer models[^19] whose job is to encapsulate the semantic of textual data. A good example of encoder is the BERT model and all it's successors like RoBERTa, DeBERTa ... For generating embeddings, BERTopic uses **SBERT**. Encoder models can take in a limitted number of tokens (parts of words), this is called the **context window size**. For smaller models, the context window size is of about 500 tokens (200 words on average) like for BERT and larger models like ModernBERT have a context window size of 8,000 tokens.
 
 The embeddings — ie the generated vectors, contain hundreds of dimensions (for instance, the dimension of BERT's embeddings is 512). Clustering algorithms work poorly with this many dimensions[^2] so we need to reduce the dimensionality of the embedding space (typically between 2 and 10). To reduce the dimensionality, the BERTopic pipeline uses the **UMAP** algorithm for it's ability to grasp local and global structures (McInnes et al., 2018)[^1]. This mean that, despite moving from several hundreds of dimensions to only a couple, documents that are close together will stay close and distant ones will stay further apart. This is a critical step as we are heavily changing the structure of the data.
 
@@ -184,7 +180,7 @@ On UMAP:
 
 The goal for the clustering algorithm is to create groups of documents that are semantically close. We are not certain that the output clusters will be "real" topics, but we tune the BERTopic pipeline in order for the clusters to be representatives of topics that are latent in our corpus.
 
-Different algorithms can be used for clustering. HDBSCAN was chosen for it's ability to detect clusters based on their density, hence it is able to detect clusters of various shapes and density. HDBSCAN also allows for documents to be labeled as noise to primarily focus on dense and coherent groups.
+Different algorithms can be used for clustering. **HDBSCAN** was chosen for it's ability to detect clusters based on their density, hence it is able to detect clusters of various shapes and density. HDBSCAN also allows for documents to be labeled as noise to primarily focus on dense and coherent groups.
 
 :::{.callout-tip collapse="false" title="Learn more about clustering techniques and HDBSCAN"}
 
@@ -204,7 +200,7 @@ On HDBSCAN:
 
 Once we have created groups of documents, we need to create a meaningful representation with keywords. The general idea in BERTopic is to identify keywords that best describe the specificity of each topic.
 
-To achieve that, it needs to come back to the text document and discompose it at the word level [^16]. It uses word-count-based techniques that will count the number of occurrences of each word[^5] in each document. However, there are plenty of words we don't want to count because they do not carry much semantic information (ex: "the", "I", "is", "but", ... ). These words are called stop words and are skipped.
+To achieve that, it needs to come back to the text document and discompose it at the word level[^16]. It uses word-count-based techniques that will count the number of occurrences of each word[^5] in each document. However, there are plenty of words we don't want to count because they do not carry much semantic information (ex: "the", "I", "is", "but", ... ). These words are called stop words and are skipped.
 
 To do so, we use the `CountVectorizer` object that will create a word x document matrix.
 
@@ -253,7 +249,7 @@ It is crucial to stress that the preprocessing step is **the most important step
 
 **Is my corpus homogenous enough ?**
 
-It could be tempting to shove millions of different documents from different sources in a topic model and see what comes out. However, to make sure that the groups will represent topics, one must be sure that your documents are similar in formality, tone, length, density of information etc... If your corpus is too heterogenous, the topic model can highlight theses differences and you will lose sight of meaningful latent topics.[^6]
+It could be tempting to shove millions of different documents from different sources in a topic model and see what comes out. However, to make sure that the groups will represent topics, one must be sure that your documents are similar in formality, tone, length, density of information etc... If your corpus is too heterogenous, the topic model can highlight theses differences and you will lose sight of meaningful latent topics[^6].
 
 In our case, as we analyse theses resumes which are quite standardised, the corpus should be homogenous enough for the topic model to pick up topics and not other semantic dimensions.
 
@@ -265,7 +261,7 @@ In our case, the data curation allowed us to extract theses where both the engli
 
 **How long are my documents?**
 
-One need to precisely define their task before diving into topic modelling. What are you trying to analyse ? Will this information be available at the sentence level ? paragraph level ? the document level ?
+One need to precisely define their task before diving into topic modelling. What are you trying to analyse? Will this information be available at the sentence level? paragraph level? the document level?
 
 In our case, the topic of the theses will be described throughout the resume, hence the resumes must be taken as a whole and not subdivided at the sentence level.
 
@@ -285,12 +281,12 @@ df_raw = pd.read_csv("./data/theses-soutenues-curated.csv")
 
 The dataset contains the following columns :
 
-- _CI_: Custom index, values are `CI-XXXX`, with `XXXX` ranging from 0 to 164,378
-- _year_: the year of the defence, values are integers ranging from 2010 to 2022
-- _oai_set_specs_: the oai code, each code looks like `ddc:XXX`, for instance `ddc:300` refers to `Sciences sociales, sociologie, anthropologie`.
-- _resumes.en_ and _resumes.fr_: the resumes of the thesis, respectively in english and french. We are sure that every row contains a valid resume in the right language thanks to the data curation.
-- _titres.en_ and _titres.fr_: the titles of the thesis, respectively in english and french. Only 5% of the rows do not have a valid title (french or english). The language of the titles has not been checked because it will only be used to check the qualitative validity of topic model. [Refer to the notebook to see the code.](google.com)
-- _topics.en_ and _topics.fr_: the aggregated topics provided by the author. Only 5% of the rows do not have valid topics (french or english). The language of the topics has not been checked because they will only be used to check the qualitative validity of topic model.
+- `CI`: Custom index, values are `CI-XXXX`, with `XXXX` ranging from 0 to 164,378
+- `year`: the year of the defence, values are integers ranging from 2010 to 2022
+- `oai_set_specs`: the oai code, each code looks like `ddc:XXX`, for instance `ddc:300` refers to `Sciences sociales, sociologie, anthropologie`.
+- `resumes.en` and `resumes.fr`: the resumes of the thesis, respectively in english and french. We are sure that every row contains a valid resume in the right language thanks to the data curation.
+- `titres.en` and `titres.fr`: the titles of the thesis, respectively in english and french. Only 5% of the rows do not have a valid title (french or english). The language of the titles has not been checked because it will only be used to check the qualitative validity of topic model. [Refer to the notebook to see the code.](google.com)
+- `topics.en` and `topics.fr`: the aggregated topics provided by the author. Only 5% of the rows do not have valid topics (french or english). The language of the topics has not been checked because they will only be used to check the qualitative validity of topic model.
 
 Let's take some time to check if our documents fit inside the context window.
 To retrieve the context window size, you can check the hugging face page of the model or load the config as such:
@@ -341,7 +337,7 @@ valid_index = np.logical_and.reduce([
 df = df_raw.loc[valid_index,:]
 ```
 
-Even if it is more interesting to process the complete dataset, it can be computationally expensive. To limit computation time at least for the exploratory steps, we are going to work on a sample of documents. To assure some representativeness, we stratify this sampling by the year of the defence[^8].
+Even if it is more interesting to process the complete dataset, it can be computationally expensive. To limit computation time at least for the exploratory steps, we are going to work on a sample of documents. To maintain some representativeness, we stratify this sampling by the year of the defence[^8].
 
 ```python
 stratification_column = "year"
@@ -442,7 +438,7 @@ For each topic the model retrieves very specific keywords that fit together such
 
 This is not a proof that our model generated interesting results, for that we need to carry further investigation of each cluster, still this is a first step towards appreciating the quality of the topic model.
 
-In this table we can see that almost half of the documents are classified as noise (topic -1). This is a normal behaviour of the clustering algorithm as it focuses on dense areas first. This way, the topic model creates representations that focus on few documents to retrieve very specific keywords. The other 104 topics contain between 10 and 200 documents each, which correspond to 0.1% to 3% of the corpus. 
+In this table we can see that almost half of the documents are classified as noise (topic -1). This is a normal behaviour of the clustering algorithm as it focuses on dense areas first. This way, the topic model creates representations that focus fewer documents to retrieve very specific keywords. The other 104 topics contain between 10 and 200 documents each, which correspond to 0.1% to 3% of the corpus. 
 
 It is worth noting that the more documents in a cluster, the lower the topic index is. 
 
@@ -468,9 +464,7 @@ The topic model is not altered and keywords are not re-generated.
 
 ## How to visualise your results
 
-Visualising your topics is central in topic modelling as **XXX**.
-
-We are going to cover some of the most basic and helpful visualisations.
+Visualising your topics is central in topic modelling as this is most convenient way to explore your documents and your topic model. We are going to cover some of the most basic and helpful visualisations.
 
 ### 2D plot
 
@@ -514,7 +508,7 @@ Take the topic n°5, we can see keywords like "urban", "land", "city", "local", 
 
 ### Hierarchical graphs
 
-A good way to visualise how topics interact with each other is to plot a dendogram. This plot is read from left to right, the sooner branches merge, the closer related topics are. We se the `visualize_hierarchy` method. The graph is very tall but we can easily focus on one subset of the tree at a time.
+A good way to visualise how topics interact with each other is to plot a dendogram. This plot is read from left to right, the sooner branches merge, the closer related topics are. We use the `visualize_hierarchy` method. The graph is very tall but we can easily focus on one subset of the tree at a time.
 
 ```python
 fig = topic_model.visualize_hierarchy()
@@ -561,7 +555,8 @@ first_oai_names = [retrieve_name(oai_code) for oai_code in first_oai]
 topics_per_class = topic_model.topics_per_class(docs, classes=first_oai_names)
 topic_model.visualize_topics_per_class(
     topics_per_class,
-    topics = [0, 1, 2, 3]
+    topics = [0, 1, 2, 3], # choose specifically which topics to display
+    # top_n_topics = 10,   # choose to display the 10 largest topics
 )
 ``` 
 
@@ -627,7 +622,7 @@ topic_info_reduced
 
 : Table X: **XXX** {tbl-colwidths="[10, 30, 60]" #tbl-topics-reduced}
 
-Similarly to before, the noise topic contains very generic keywords. As for the rest, we can identify seven [^10] main latent topics :
+Similarly to before, the noise topic contains very generic keywords. As for the rest, we can identify seven[^10] main latent topics :
 
 - Social Sciences
 - Medicine and Health
@@ -659,50 +654,14 @@ Finally, the 7th topic still seem very specific, even after reducing outliers, t
 
 :::{.callout-warning}
 
-Careful though, even if the previous results let us think the topic model was coherent, we have not evaluated it yet.
+Careful though, even if the previous results let us think the topic model is coherent, we have not evaluated it yet.
 
 :::
 
 ## Tune parameters
 
-:::{.callout-tip title="Default parameters for the clustering and dimension reduction model" collapse="false"}
-
-HDBSCAN model
-
-- `min_cluster_size = 10`
-- `min_samples = None` ie is set to `min_cluster_size`
-- `prediction_data = True`
-- `metric = "eucidean"`
-
-UMAP model
-
-- `n_neighbors = 15`
-- `min_dist = 0.0`
-- `n_components = 5`
-- `metric = 5`
-
-:::
-
-:::{.callout-tip title="UMAP main parameters" collapse="false"}
-
-- `n_neighbors`: This is the algorithm's most important parameter. To focus on local structures, you need to choose a small `n_neighbors` and increase it's value to grasp more global values[^3]. Because of it's design, the number of neighbours depends on the number of documents you have, meaning that if you have 1,000 documents, `n_neighbors = 100` will create a very general structure, whereas if you have 100,000 documents, the same value will create a fine grained structure.
-- `min_dist`: This parameter is "essentially aesthetic" (McInnes et al., 2018, p23). For clustering tasks you want to keep this value low so that the data is aggregated in dense groups that will be easier to cluster.
-- `n_components`: This parameter defines the number of dimensions of the output space. We generally choose between 2 and 5 for easier visualisations. This is more difficult to tune as you'll see the effects through the clustering results. We recommend to use `n_components = 5` and modify[^4] the value if tuning the clustering parameters is not enough.
-- `metrics`: This parameter defines the metric used to quantify the similarity between 2 vectors. For NLP tasks, we use the `cosine` metric
-
-:::
-
-:::{.callout-tip title="UMAP main parameters" collapse="false"}
-
-**Move further down**
-The main HDBSCAN parameters are:
-
-- `min_cluster_size`: minimum number of elements in a group to be considered a cluster, otherwise, it's considered as noise. Small `min_cluster_size` will create many, highly specify clusters whereas large `min_cluster_size` will create very general cluster as well as a lot of noise. The default value is 5. [_source 1_](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-cluster-size), [_source 2_](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-cluster-size)
-- `min_samples`: the number of samples in a neighbourhood for a point to be considered as a core point, ie the larger `sample_size` is, the more the algorithm will focus on dense areas. If no value is provided, then it is set to the value of `min_cluster_size`. [_source 1_](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-samples) [_source 2_](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-samples)
-  In our experience, tuning `min_cluster_size` and leaving `min_samples = min_cluster_size` is enough for most cases.
-- `metric`: here the metric should not me switched to `cosine` because we are not in the embedding space anymore.
-
-:::
+The first step is to choose the embedding model as it drastically alters the results of the topic model. 
+Then you can focus on the 2 main parameters of the pipeline: `n_neighbors` (UMAP) and `min_cluster_size` (HDBSCAN).
 
 ## Discussion on evaluating a topic model
 
@@ -714,8 +673,6 @@ In short: quantitative methods are impractical and one should focus more on the 
 
 There is no one way around qualitatively evaluate your BERTopic, however the point is 
 <!-- find reference? -->
-
-
 
 ### Quantitative evaluation
 
@@ -802,8 +759,6 @@ Saving the instance is a good practice, as we will see below, when reducing the 
 
 [^12]: Silhouette Coefficient, Calinski-Harabasz index and Davies-Bouldin Index. All are designed to evaluate centroïd-based clustering models (vs density-based clustering models such as HDBSCAN) such as k-Means. This means that the score is generally higher for convex clusters (round-shaped) which we don't necessarily want.
 
-[^13]: The index was designed by the same team that designed HDBSCAN (Campello et al., 2013)
-
 [^14]: the name "transformer models" refers to a specific neural netword designed popularised by Vaswani et al. (2017), most if not all current Language models rely on this architecture.
 
 [^15]: You can use online tools as [Onyxia](datalab.sspcloud.fr) if **XXX**
@@ -813,3 +768,9 @@ Saving the instance is a good practice, as we will see below, when reducing the 
 [^17]: Curation can be found [here](./techy-notes.qmd#curations-of-the-original-dataset)
 
 [^18]: The space represented is not necessarily the space used during the clustering step. `UMAP(n_dimensions = 2)` is run on the embeddings when plotting. Also, because UMAP is non-deterministic, the result may differ from a run to another. This explains why some dots seem far away from their cluster.
+
+[^19]: "Pre-Trained" means that the model has already been trained on millions of documents and perform. "Transformer" is the name of a neural network architecture broadly used in machine learning.
+
+[^20]: [source 1](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-cluster-size), [source 2](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-cluster-size)
+
+[^21]: [source 1](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-samples) [source 2](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-samples)

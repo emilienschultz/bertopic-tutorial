@@ -11,6 +11,25 @@
 # Reduce outliers strategies
 When using HDBSCAN, DBSCAN, or OPTICS, a number of outlier documents might be created that do not fall within any of the created topics. These are labeled as -1. This function allows the user to match outlier documents with their nearest topic using one of the following strategies using the strategy parameter: * "probabilities" This uses the soft-clustering as performed by HDBSCAN to find the best matching topic for each outlier document. To use this, make sure to calculate the probabilities beforehand by instantiating BERTopic with calculate_probabilities=True. * "distributions" Use the topic distributions, as calculated with .approximate_distribution to find the most frequent topic in each outlier document. You can use the distributions_params variable to tweak the parameters of .approximate_distribution. * "c-tf-idf" Calculate the c-TF-IDF representation for each outlier document and find the best matching c-TF-IDF topic representation using cosine similarity. * "embeddings" Using the embeddings of each outlier documents, find the best matching topic embedding using cosine similarity.
 
+# UMAP and HDBSCAN parameter despcription
+
+|Parameter  | Description | Increase | Decrease |Recommendations
+|---:|:--- |:--- |:---|:---|
+|⭐️`n_neighbors`<br/>*default 15*|This parameter defines what's considered as "close". Th |Focus on the global structure|Focus on local structures||
+|`min_dist`<br/>*default 0.0*|This parameter is "essentially aesthetic", low values will create denser clusters|||Keep `min_dist=0.0`|
+|`n_components`<br/>*default 5*|Defines the number of dimensions of the output space.|Maintain richer representations.|Flatten the representations.|Start with `n_components=5`.<br/>Increase when the topic model does not grasp semantic subtelties<br/>Decrease when the topic model focuses on non-essential disparities of your corpus.| 
+|`metrics`<br/>*default cosine*|This parameter defines the metric used to quantify the similarity between 2 vectors|||For NLP tasks, we use the cosine metric|
+
+: Table X: UMAP Parameters table {tbl-colwidths="[10, 20, 20, 20, 40]" #tbl-umap-parameters}
+
+|Parameter  | Description | Increase | Decrease |Recommendations
+|---:|:--- |:--- |:---|:---|
+|⭐️`min_cluster_size`<br/>*default 10*|The minimum number of elements in a group to be considered a cluster, otherwise, it's considered as noise |Generate few large and generic groups.|Generate many small and highly specific groups.|Start with a rather large value and reduce incrementally until obtaining a fine grained topic model|
+|`min_samples`<br/>*default None*|The number of samples in a neighbourhood for a point to be considered as a core point|The algorithm is conservative, only large groups will remain.|Allow for small groups.|In our experience, tuning `min_cluster_size` and leaving `min_samples = min_cluster_size` is enough for most cases[^20].|
+|`metrics`<br/>*default eucidean*|This parameter defines the metric used to quantify the distance between 2 docs|||The metric should not me switched to `cosine` because we are not working in the embedding space anymore.|
+
+: Table X: HDBSCAN Parameters table {tbl-colwidths="[10, 20, 20, 20, 40]" #tbl-hdbscan-parameters}
+
 # Instances file size and content
 
 | filename (size)| definition| `save_ctfidf = False` |
@@ -38,3 +57,6 @@ _figure to come_
 We don't really recommend using clustering metrics to evaluate your topic model.
 
 # Coherence metrics 
+
+
+[^13] The index was designed by the same team that designed HDBSCAN (Campello et al., 2013)
