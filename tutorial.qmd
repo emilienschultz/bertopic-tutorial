@@ -752,6 +752,8 @@ There are two types of metrics that you could use:
 
 # Good practices
 
+## Precompute your embeddings
+
 Pre-computing the embeddings is a good practice as it will prevent from computing them at each run, but also because it allows you to use a broader spectrum of embedding models that could ne necessarily be used with BERTopic[^7].
 We retrieve the embeddings and the documents
 
