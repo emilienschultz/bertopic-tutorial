@@ -1,3 +1,7 @@
+---
+title: "Techy Notes"
+---
+
 # Curations of the original dataset
 
 - select only thesis defended between 2010 and 2022, since information before that time is of lower quality
