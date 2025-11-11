@@ -63,4 +63,4 @@ We don't really recommend using clustering metrics to evaluate your topic model.
 # Coherence metrics 
 
 
-[^13] The index was designed by the same team that designed HDBSCAN (Campello et al., 2013)
+[^13]: The index was designed by the same team that designed HDBSCAN (Campello et al., 2013)
