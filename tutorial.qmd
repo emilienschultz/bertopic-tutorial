@@ -15,7 +15,7 @@ Need to rerun it all and double check comments
 :::
 # Introduction 
 
-What are the main issues adressed in a set of documents ? Are those documents similar or discussing different issues ? What is the most important topic ? Delineating the main topics in a set of documents is a common task in social sciences; especially when working with a new corpus. Of course, identifying the topics can be done by hand, reading each document. But when dealing with large corpora, this task is almost impossible; hence, for quite some time now, social scientists have used **topic modelling** techniques to quickly extract the main themes in their corpus (Asmussen & Møller, 2019), either to explore them or to attribute a label to each document to conduct further analysis.
+What are the main issues adressed in a set of documents ? Are those documents similar or discussing different issues ? What is the most important topic ? Delineating the main topics in a set of documents is a common task in social sciences; especially when working with a new corpus. Of course, identifying the topics can be done by hand. But when dealing with large corpora, this task is almost impossible; hence, for quite some time now, social scientists have used **topic modelling** techniques to quickly extract the main themes in their corpus (Asmussen & Møller, 2019), either to explore them or to attribute a label to each document to conduct further analysis.
 
 > **Topic modelling** is a natural language processing task that extracts latent topics structuring a corpora.<br/>
 > _For instance, Jockers & Mimno (2013) extracted broad themes in the English literature from the 19th century._ 
@@ -44,7 +44,7 @@ We don't assume that you have any knowledge about NLP and try our best to explai
 
 Nevertheless, you need to have some notions of Python. If you need to refresh your Python skills, you can use [Lino Galina's courses](https://pythonds.linogaliana.fr/en/). We assume that:
 
-- you have a working environment[^15] and can install packages
+- you have a working environment and can install packages
 - you know the basic syntax of Python (functions, variables, if-statements, for loops) and you're comfortable enough with Pandas to load your documents and proceed to simple manipulations such as creating, dropping and renaming columns and rows.
 
 In this tutorial, we use python 3.12, and you can install the packages we will need with :
@@ -153,7 +153,7 @@ Under the hood, BERTopic does three main steps : <!--  meh does-->
 
 To generate the embeddings we use encoder models. Encoder models are a type of pre-trained transformer models[^19] whose job is to encapsulate the semantic of textual data. A good example of encoder is the BERT model and all it's successors like RoBERTa, DeBERTa ... For generating embeddings, BERTopic uses **SBERT**. Encoder models can take in a limitted number of tokens (parts of words), this is called the **context window size**. For smaller models, the context window size is of about 500 tokens (200 words on average) like for BERT and larger models like ModernBERT have a context window size of 8,000 tokens.
 
-The embeddings — ie the generated vectors, contain hundreds of dimensions (for instance, the dimension of BERT's embeddings is 512). Clustering algorithms work poorly with this many dimensions[^2] so we need to reduce the dimensionality of the embedding space (typically between 2 and 10). To reduce the dimensionality, the BERTopic pipeline uses the **UMAP** algorithm for it's ability to grasp local and global structures (McInnes et al., 2018)[^1]. This mean that, despite moving from several hundreds of dimensions to only a couple, documents that are close together will stay close and distant ones will stay further apart. This is a critical step as we are heavily changing the structure of the data.
+The embeddings — ie the generated vectors, contain hundreds of dimensions (for instance, the dimension of BERT's embeddings is 512). Clustering algorithms work poorly with this many dimensions so we need to reduce the dimensionality of the embedding space (typically between 2 and 10). To reduce the dimensionality, the BERTopic pipeline uses the **UMAP** algorithm for it's ability to grasp local and global structures (McInnes et al., 2018)[^1]. This mean that, despite moving from several hundreds of dimensions to only a couple, documents that are close together will stay close and distant ones will stay further apart. This is a critical step as we are heavily changing the structure of the data.
 
 :::{.callout-tip collapse="false" title="Learn more about embedding techniques"}
 
@@ -441,8 +441,7 @@ In this table we can see that almost half of the documents are classified as noi
 
 It is worth noting that the more documents in a cluster, the lower the topic index is. 
 
-It is possible to re-assign clusters to documents clustered as noise with the `reduce_outliers`[^9] method, based on XXXX: 
-<!-- AM: based on ??? what do you mean -->
+It is possible to re-assign clusters to documents clustered as noise with the `reduce_outliers` method, based on the documentation and the code, we recommend using the *"embedding"* strategy[^22]: 
 
 ```python
 topics_reduced = topic_model.reduce_outliers(
@@ -575,22 +574,9 @@ topic_model.visualize_topics_over_time(topics_over_time, topics = [0,1,2,3])
 
 ## Aggregate topics{#sec-aggregate-topics}
 
-:::{.callout-warning}
-
-Need further research, the reduce to n topic method does not use the hierarchical clustering of hdbscan, which is odd
-
-It seems like hdbscan is not chose to perform 
-
-il y a une divergence entre la manière de visualiser la hierarchie et d'agréger les sujets ce qui fait que le lien est pas évident évident: 
-
-- visualize_hierarchy: uses ward linkage on c-tf-idf 
-- reduce_to_n_topics : uses average linkage on embeddings
-
-😬 <- me, ie lost
-
-:::
-
-In our case, with more than 100 topics, it is difficult to have a general idea of the main latent themes in the corpus. Looking back to the @fig-hierarchical-plot we can identify seven large branches we could reduce our topic model to.
+To aggregate topics, the algorithm proposed is to use the topic embeddings[^23], compute the cosine similarity matrix and use the agglomerative clustering algorith described [here](XXX) to aggregate the topics. Once performed, all the documents are moved into a new group and keywords are re-generated.
+<br/>
+With more than 100 topics, it is difficult to have a general idea of the main latent themes in the corpus. Looking back to the @fig-hierarchical-plot[^24] we can identify seven large branches we could reduce our topic model to.
 
 ```python
 topic_model.reduce_topics(docs = docs, nr_topics=7 + 1) #Add one to account for the noise
@@ -649,12 +635,6 @@ After reducing outliers, here is the distribution of topics across all out docum
 
 Finally, the 7th topic still seem very specific, even after reducing outliers, there are only 31 documents in this topic.
 
-:::{.callout-warning}
-
-Careful though, even if the previous results let us think the topic model is coherent, we have not evaluated it yet.
-
-:::
-
 ## Tune parameters{#sec-tune-parameters}
 
 In this section, we propose to tune the 3 main parameters outlined by research papers and confirmed by our experience: the embedding model, `n_neighbors` (UMAP) and `n_components` (HDBSCAN). A table can be found in the [techy notes](./techy-notes.qmd#umap-and-hdbscan-parameter-despcription) providing descriptions for other parameters.
@@ -667,7 +647,7 @@ At this point you can also try different values for `n_neighbors` and `n_compone
 
 **Tune the granularity of the topic model** (parameters tuned: `n_neighbors` and `min_cluster_size`)
 
-Once you've chose the embedding model to use, you can change the `n_neighbors` and `min_cluster_size`. Both work jointly: the lower these paramters, the smaller grain and more specific the topics. 
+Once you've chosen the embedding model to use, you can change the `n_neighbors` and `min_cluster_size`. Both work jointly: the lower these paramters, the smaller grain and more specific the topics. 
 
 To change these parameters, one must create `UMAP` and `HDBSCAN` instances and pass them on to the `BERTopic` model:
 
@@ -725,13 +705,13 @@ We obtain the following results:
 
 ## Discussion on evaluating a topic model
 
-Topic model evaluation is an active domain of research that goes beyond the scope of this tutorial. We propose an overview of the methods that exist and how to quickly tell if your topic model can be used or need to be refined.
+Topic model evaluation is an active domain of research that goes beyond the scope of this tutorial. We propose an overview of the methods that exist and how to quickly tell if your topic model can be used or needs to be refined.
 
 In short: quantitative methods are impractical and one should focus more on the qualitative evaluation.
 
 ### Qualitative evaluation
 
-All along the tutorial, we have displayed many results and analysed them with the objective to answer the very question: is the topic model coherent? There is no one way around qualitatively evaluating your BERTopic, however the point is to offer some techniques we found useful and code snippet to quickly obtain key insights on your topic model performance.
+All along the tutorial, we have displayed many results and analysed them with the objective to answer the very question: is the topic model coherent? There is no one way around qualitatively evaluating your BERTopic, however the point is to offer some techniques we found useful and code snippets to quickly obtain key insights on your topic model performance.
 
 **Explore the 2D map**
 
@@ -890,8 +870,6 @@ Törnberg, A., & Törnberg, P. (2025). The aesthetics of climate misinformation�
 
 [^1]:The UMAP algorithm is very close to the t-SNE algorithm with better scaling capabilities. Another good option for the dimensionality reduction step is the PCA algorithm that will focus on the global structure. PCA is a better choice if you solely focus on the big picture (McInnes et al., 2018, p45).
 
-[^2]: For example, running the topic model with no dimensionality reduction takes about 10 times as much time and generates poor topics.
-
 [^3]: "represents some degree of trade-off between fine grained and large scale manifold features" (McInnes et al., 2018, p23).
 
 [^4]: Increase if you want to add more semantic features, or decrease to remove some semantic features. The effect of adding/removing a number of features is not obvious, and you'll have to try different configurations.
@@ -904,8 +882,6 @@ Törnberg, A., & Törnberg, P. (2025). The aesthetics of climate misinformation�
 
 [^8]: More information on [stratification in Pandas](https://proclusacademy.com/blog/stratified_sampling_pandas/)
 
-[^9]: See the [techy notes](./techy-notes.qmd#reduce-outliers-strategies) for more information on the strategies used to reduce the outliers.
-
 [^10]: We have seven topics because we asked the topic model to reduce the number of topics to seven.
 
 [^11]: Rand index, Mutual Information based scores (NMY and AMI), Homogeneity, completeness and V-measure and Fowlkes-Mallows scores.
@@ -914,16 +890,20 @@ Törnberg, A., & Törnberg, P. (2025). The aesthetics of climate misinformation�
 
 [^14]: the name "transformer models" refers to a specific neural netword designed popularised by Vaswani et al. (2017), most if not all current Language models rely on this architecture.
 
-[^15]: You can use online tools as [Onyxia](datalab.sspcloud.fr) if **XXX**
-
 [^16]: Previously, the transformer model worked at the token level.
 
 [^17]: Curation can be found [here](./techy-notes.qmd#curations-of-the-original-dataset)
 
 [^18]: The space represented is not necessarily the space used during the clustering step. `UMAP(n_dimensions = 2)` is run on the embeddings when plotting. Also, because UMAP is non-deterministic, the result may differ from a run to another. This explains why some dots seem far away from their cluster.
 
-[^19]: "Pre-Trained" means that the model has already been trained on millions of documents and perform. "Transformer" is the name of a neural network architecture broadly used in machine learning.
+[^19]: "Pre-Trained" means that the model has already been trained on millions of documents. "Transformer" is the name of a neural network architecture broadly used in machine learning.
 
 [^20]: [source 1](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-cluster-size), [source 2](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-cluster-size)
 
 [^21]: [source 1](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-samples) [source 2](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-samples)
+
+[^22]: See [techy-notes](./techy-notes.qmd#reduce-outliers-strategies) for more information.
+
+[^23]: ie the mean of the document's embedding inside a cluster.
+
+[^24]: There is a small difference in the computation of the graph and the reduce outlier that we do not clearly understand. [See issue #XXX.](XXX)

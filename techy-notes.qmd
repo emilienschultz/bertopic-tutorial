@@ -13,7 +13,15 @@ title: "Techy Notes"
 - Add an index to the dataset
 
 # Reduce outliers strategies
-When using HDBSCAN, DBSCAN, or OPTICS, a number of outlier documents might be created that do not fall within any of the created topics. These are labeled as -1. This function allows the user to match outlier documents with their nearest topic using one of the following strategies using the strategy parameter: * "probabilities" This uses the soft-clustering as performed by HDBSCAN to find the best matching topic for each outlier document. To use this, make sure to calculate the probabilities beforehand by instantiating BERTopic with calculate_probabilities=True. * "distributions" Use the topic distributions, as calculated with .approximate_distribution to find the most frequent topic in each outlier document. You can use the distributions_params variable to tweak the parameters of .approximate_distribution. * "c-tf-idf" Calculate the c-TF-IDF representation for each outlier document and find the best matching c-TF-IDF topic representation using cosine similarity. * "embeddings" Using the embeddings of each outlier documents, find the best matching topic embedding using cosine similarity.
+
+As described in the [documentation](XXX), there are four ways of reducing the number of outliers, ie assigning documents to existing groups. The strategies are listed below
+
+- *"probabilities"*: HDBSCAN can compute (if you set `calculate_probabilities=True`) the probability of each document to belong to each topic. A document is assigned the most likely group, given this definition.
+- *"distributions"*: personne n'a compris **XXX**
+- *"c-tf-idf"*: compute the c-TF-IDF representation of each outlier document (ie sparse representation) and assign the document to the group sharing the highest similarity.
+- *"embeddings"*: find the best matching topic using cosine similarity between the outlier document's embedding (dense representation) and the topic centroid (ie the mean of the document's embedding inside a group).
+
+We recommend using the *"embeddings"* as using embeddings offer the richest representation and it is more coherent with NLP tasks.
 
 # UMAP and HDBSCAN parameter despcription
 
