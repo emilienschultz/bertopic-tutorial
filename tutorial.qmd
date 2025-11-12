@@ -874,6 +874,20 @@ Saving the instance is a good practice, as we will see below, when reducing the 
 
 # Bibliography
 
+Asmussen, C. B., & Møller, C. (2019). Smart literature review : A practical topic modelling approach to exploratory literature review. Journal of Big Data, 6(1), 93. https://doi.org/10.1186/s40537-019-0255-7
+
+Bizel-Bizellot, G., Galmiche, S., Charmet, T., Coudeville, L., Fontanet, A., & Zimmer, C. (2024). Extracting Circumstances of COVID-19 Transmission from Free Text with Large Language Models. SSRN. https://doi.org/10.2139/ssrn.4819301
+
+Grootendorst, M. (2022). BERTopic : Neural topic modeling with a class-based TF-IDF procedure (Version 1). arXiv. https://doi.org/10.48550/ARXIV.2203.05794
+
+Jockers, M. L., & Mimno, D. (2013). Significant themes in 19th-century literature. Poetics, 41(6), 750‑769. https://doi.org/10.1016/j.poetic.2013.08.005
+
+McInnes, L., Healy, J., & Melville, J. (2018). UMAP : Uniform Manifold Approximation and Projection for Dimension Reduction (Version 3). arXiv. https://doi.org/10.48550/ARXIV.1802.03426
+
+Stammbach, D., Zouhar, V., Hoyle, A., Sachan, M., & Ash, E. (2023). Revisiting Automated Topic Model Evaluation with Large Language Models. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, 9348‑9357. https://doi.org/10.18653/v1/2023.emnlp-main.581
+
+Törnberg, A., & Törnberg, P. (2025). The aesthetics of climate misinformation : Computational multimodal framing analysis with BERTopic and CLIP. Environmental Politics, 1‑24. https://doi.org/10.1080/09644016.2025.2557684
+
 [^1]:The UMAP algorithm is very close to the t-SNE algorithm with better scaling capabilities. Another good option for the dimensionality reduction step is the PCA algorithm that will focus on the global structure. PCA is a better choice if you solely focus on the big picture (McInnes et al., 2018, p45).
 
 [^2]: For example, running the topic model with no dimensionality reduction takes about 10 times as much time and generates poor topics.
