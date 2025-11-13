@@ -13,6 +13,7 @@ Ne pas se focaliser que sur l'exploratoire
 Need to rerun it all and double check comments
 
 :::
+
 # Introduction 
 
 What are the main issues adressed in a set of documents ? Are those documents similar or discussing different issues ? What is the most important topic ? Delineating the main topics in a set of documents is a common task in social sciences; especially when working with a new corpus. Of course, identifying the topics can be done by hand. But when dealing with large corpora, this task is almost impossible; hence, for quite some time now, social scientists have used **topic modelling** techniques to quickly extract the main themes in their corpus (Asmussen & Møller, 2019), either to explore them or to attribute a label to each document to conduct further analysis.
@@ -22,7 +23,7 @@ What are the main issues adressed in a set of documents ? Are those documents si
 >
 > **Natural language processing (NLP)** is a subfield of computer science that analyses textual data. Main NLP tasks are text generation (like chatGPT), text classification, or topic modelling.
 
-![Topic Modelling **XXX**](assets/topic_modelling_scheme.png){#fig-schema}
+![Topic Modelling in-out sketch](assets/topic_modelling_scheme.png){#fig-schema}
 
 Until recently, topic modelling techniques — and natural language processing (NLP) in general — heavily relied on word counts, especially bag-of-words approaches. Amongst other limits, those approaches do not take into account the context in which a word is used — the order of the words in a sentence does not matter to those models, thus failing to grasp the complexity of the human language.
 
@@ -123,7 +124,7 @@ The `topic_info` variable is a table like this :
 | 0     | 2     | 0_cat      | "cat"          | "My cat is the cutest"                         |
 | 1     | 1     | 1_building | "building"     | "The Empire State Building is 1,250 feet tall" |
 
-: Table X: **XXX** {tbl-colwidths="[10, 10, 20, 20,40]"}
+: Topic information for a simplified corpus {#tbl-topics-example tbl-colwidths="[10, 10, 20, 20,40]"}
 
 The `Topic` column lists the topic IDs, the `Count` column lists the number of element there are in each topic, the `Name` column is a summary of topic ID and keywords — listed in the `Representation` column, and finally the `Representative_Docs` lists example of documents that are representative of the topic.
 
@@ -136,10 +137,12 @@ In reality, this example would not run because there are not enough documents! L
 | 0     | 500   | 0\_**XXX** | **XXXX**       |
 | 1     | 500   | 1\_**XXX** | **XXXX**       |
 | 2     | 500   | 2\_**XXX** | **XXXX**       |
-: Table X: **XXX** {tbl-colwidths="[10, 20, 20,50]"}
+
+: Topic information of the french theses after tuning the topic model 
+{#tbl-final-example tbl-colwidths="[10, 20, 20,50]"}
 
 
-![XXX](./assets/tuto_2d_plot.png){#fig-2d-plot-intro}
+![2D plot of the french theses after tuning the topic model](./assets/tuto_2d_plot.png){#fig-2d-plot-intro}
 
 ## Breaking down the process
 
@@ -153,23 +156,20 @@ Under the hood, BERTopic does three main steps : <!--  meh does-->
 
 To generate the embeddings we use encoder models. Encoder models are a type of pre-trained transformer models[^19] whose job is to encapsulate the semantic of textual data. A good example of encoder is the BERT model and all it's successors like RoBERTa, DeBERTa ... For generating embeddings, BERTopic uses **SBERT**. Encoder models can take in a limitted number of tokens (parts of words), this is called the **context window size**. For smaller models, the context window size is of about 500 tokens (200 words on average) like for BERT and larger models like ModernBERT have a context window size of 8,000 tokens.
 
-The embeddings — ie the generated vectors, contain hundreds of dimensions (for instance, the dimension of BERT's embeddings is 512). Clustering algorithms work poorly with this many dimensions so we need to reduce the dimensionality of the embedding space (typically between 2 and 10). To reduce the dimensionality, the BERTopic pipeline uses the **UMAP** algorithm for it's ability to grasp local and global structures (McInnes et al., 2018)[^1]. This mean that, despite moving from several hundreds of dimensions to only a couple, documents that are close together will stay close and distant ones will stay further apart. This is a critical step as we are heavily changing the structure of the data.
+:::{.callout-tip collapse="true" title="Learn more about embedding techniques"}
 
-:::{.callout-tip collapse="false" title="Learn more about embedding techniques"}
-
-- [Lien vers la documentation complète de BERTopic](https://maartengr.github.io/BERTopic/getting_started/embeddings/embeddings.html)
+- [BERTopic documentation on embeddings](https://maartengr.github.io/BERTopic/getting_started/embeddings/embeddings.html)
+- ["The illustrated Transformer" by Jay Alammar](https://jalammar.github.io/illustrated-transformer/)
+- [A visual explanation of general concepts behind LLMs by 3Blue1Brown](https://www.youtube.com/watch?v=wjZofJX0v4M)
 
 :::
 
-:::{.callout-tip collapse="false" title="Learn more about dimensionality reduction and UMAP"}
+The embeddings — ie the generated vectors, contain hundreds of dimensions (for instance, the dimension of BERT's embeddings is 512). Clustering algorithms work poorly with this many dimensions so we need to reduce the dimensionality of the embedding space (typically between 2 and 10). To reduce the dimensionality, the BERTopic pipeline uses the **UMAP** algorithm for it's ability to grasp local and global structures (McInnes et al., 2018)[^1]. This mean that, despite moving from several hundreds of dimensions to only a couple, documents that are close together will stay close and distant ones will stay further apart. This is a critical step as we are heavily changing the structure of the data.
 
+:::{.callout-tip collapse="true" title="Learn more about dimensionality reduction and UMAP"}
 
-On dimensionality reduction:
-
-- XX
-
-On UMAP:
-
+- ["What is dimensionality reduction?" by Eda Kavlakoglu (IBM)](https://www.ibm.com/think/topics/dimensionality-reduction)
+- [UMAP documentation](https://umap-learn.readthedocs.io/en/latest/)
 - [Youtube videos to understand the main ideas (StatQuest)](https://www.youtube.com/watch?v=eN0wFzBA4Sc) and the [mathematical details (StatQuest)](https://youtu.be/jth4kEvJ3P8?si=ZM66Ko6TyV4Vyy7E).
 - [To explore the impact of the UMAP parameters](https://pair-code.github.io/understanding-umap/).
 
@@ -181,14 +181,9 @@ The goal for the clustering algorithm is to create groups of documents that are 
 
 Different algorithms can be used for clustering. **HDBSCAN** was chosen for it's ability to detect clusters based on their density, hence it is able to detect clusters of various shapes and density. HDBSCAN also allows for documents to be labeled as noise to primarily focus on dense and coherent groups.
 
-:::{.callout-tip collapse="false" title="Learn more about clustering techniques and HDBSCAN"}
+:::{.callout-tip collapse="true" title="Learn more about clustering techniques and HDBSCAN"}
 
-On clustering:
-
-- XXX
-
-On HDBSCAN:
-
+- [Clustering by Scikit-Learn](https://scikit-learn.org/stable/modules/clustering.html)
 - [Presentation of HDBSCAN by John Healy - PyData NYC 2018](https://youtu.be/dGsxd67IFiU?si=18wnb1nh1oJxyHzH)
 - [The HDBSCAN documentation](https://hdbscan.readthedocs.io/en/latest/index.html)
 - [The Scikit-Learn documentation of HDBSCAN](https://scikit-learn.org/stable/modules/clustering.html#hdbscan)
@@ -203,7 +198,7 @@ To achieve that, it needs to come back to the text document and discompose it at
 
 To do so, we use the `CountVectorizer` object that will create a word x document matrix.
 
-:::{.callout-tip title="Example"}
+:::{.callout-tip collapse="true" title="Example"}
 
 Given the two following documents:
 
@@ -225,6 +220,12 @@ The word x document matrix would be:
 The word x document matrix is never used as is and needs transformation to outline relevant words. The usual transformation is called TF-IDF. This transformation raises the score of words that appear often in a document and decreases the score of words that appear in many documents.
 In BERTopic, they use an alternative called **c-TF-IDF**. This transformation raises the score of words that appear often in documents of the same group and decreases the score of words appearing in other groups. With this transformation, we retrieve words that make a group unique!
 
+:::{.callout-tip collapse="true" title="Learn more about bag-of-words and TF-IDF"}
+
+- ["N-gram Language Models" Chapter 3 of Speech and Language Processing by D.Jurafsky and J.H.Martin](https://web.stanford.edu/~jurafsky/slp3/3.pdf)
+- [Tutorial TF-IDF with Scikit-Learn](https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/03-TF-IDF-Scikit-Learn.html#id1)
+
+:::
 
 ## Conclusion
 
@@ -234,7 +235,13 @@ To sum it up we have:
 - Then create groups of semantically close documents with **HDBSCAN**. Each group can represent latent topics in our corpus.
 - Create meaningful representations of each topic by counting words in the documents with **CountVectorizer** and outline the most representative words with **c-TF-IDF**.
 
-![XXX](./assets/bertopic-general-en.svg){#fig-general-illustration}
+![The 6 steps of BERTopic [source](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#visual-overview)](./assets/bertopic-general-en.svg){#fig-general-illustration}
+
+:::{.callout-note}
+
+The Optional Fine-tuning step is not covered in this tutorial. This step proposes to use generative LLMs to describe the topics.
+
+:::
 
 # Hands on with Python
 
@@ -320,7 +327,7 @@ df_raw.loc[:,["resumes.en.len", "resumes.fr.len"]].describe()
 | mean | 1777       | 1984       |
 | std  | 735        | 802        |
 
-: Table 2: **XXX** {tbl-colwidths="[20,40,40]"}
+: Descriptive statistics of the length of the resumes in english and in french {tbl-colwidths="[20,40,40]"}
 
 With these statistics, we see that we can rule out using `sentence-transformers/all-MiniLM-L6-v2` because it's context window is too narrow. By keeping resumes between 1000 and 4000 characters (ie between 300 and 1300 tokens[^7]) we can keep most of the dataset (89%) while maintaining a reasonable computation time.
 
@@ -424,7 +431,7 @@ topic_info
 | 105 |     104 |      10 | ['humins', 'tannins', 'biobased', 'foams', 'composites', 'tannin', 'biocomposites', 'cab', 'materials', 'lignin']       |
         |
 
-: Table X: **XXX (truncated)** {tbl-colwidths="[10, 10, 10, 70]"}
+: Topic information (truncated) of the french theses for a basic topic model {#tbl-topics-truncated tbl-colwidths="[10, 10, 10, 70]"}
 
 The "Representation" column provides the keywords for each topic. We can see that the keywords retrieved for the noise cluster are very generic: "study", "thesis", "model", "analysis", "approach" and do not convey any meaningful information other than the fact that all documents are academic documents.
 <br/>
@@ -482,7 +489,7 @@ The first thing we want to visualise is the space of the embeddings reduced to 2
 )
 ```
 
-![**XXX** [^18]](./assets/tuto_2d_plot.png){#fig-2d-plot}
+![2D plot of the french theses for a basic topic model[^18]](./assets/tuto_2d_plot.png){#fig-2d-plot}
 
 On this graph only displaying the 4 top topics, we can see that the cluster are large and dense. We can see that the "1_mechanical_numerical_behavior" and the "3_flow_numerical_fluid" are close, as expected whereas "0_literary_writing_art" and "2_cells_cancer_tumor" are further apart in separate directions.
 
@@ -500,7 +507,7 @@ topic_model.visualize_barchart(
 )
 ```
 
-![**XXX**](./assets/tuto_top_n_words.png){#fig-top-n-words}
+![Top $n$ words per topic of the french theses for a basic topic model](./assets/tuto_top_n_words.png){#fig-top-n-words}
 
 Take the topic n°5, we can see keywords like "urban", "land", "city", "local", "public" and "ecological". These keywords make sense together and we can imagine theses discussing urban planning at different scales and under different constraints.
 
@@ -512,7 +519,7 @@ A good way to visualise how topics interact with each other is to plot a dendogr
 fig = topic_model.visualize_hierarchy()
 ```
 
-![**XXX**](./assets/tuto_hierarchical.png){#fig-hierarchical-plot}
+![Hierarchical graph of the french theses for a basic topic model](./assets/tuto_hierarchical.png){#fig-hierarchical-plot}
 
 At the very top of this graph, we can see the green branches related to laws and international rights, very close to contract legislation. This is a good sign that these three branches merge together and that we dont find legislation-related keywords anywhere else in the three.
 
@@ -558,7 +565,7 @@ topic_model.visualize_topics_per_class(
 )
 ``` 
 
-![**XXX**](./assets/tuto_topics_per_class.png){#fig-topic-per-class}
+![Topics distributed over the OAI tags of the french theses for a basic topic model](./assets/tuto_topics_per_class.png){#fig-topic-per-class}
 
 In this figure, we can start by checking that documents are associated to the right topic. For instance, it is coherent to see that documents of the topic '1_mechanical_numerical_behavior' are found in theses in Physics, Engineering Sciences; and that theses of the topic '2_cells_cancer_tumor' are found in theses in Health and Medicine as well as in Biology and Biochemistry.
 
@@ -570,11 +577,11 @@ topics_over_time = topic_model.topics_over_time(docs = docs, timestamps=year)
 topic_model.visualize_topics_over_time(topics_over_time, topics = [0,1,2,3])
 ```
 
-![**XXX**](./assets/tuto_temporal_axis.png){#fig-temporal-axis}
+![Number of theses over the years in each group of the french theses for a basic topic model](./assets/tuto_temporal_axis.png){#fig-temporal-axis}
 
 ## Aggregate topics{#sec-aggregate-topics}
 
-To aggregate topics, the algorithm proposed is to use the topic embeddings[^23], compute the cosine similarity matrix and use the agglomerative clustering algorith described [here](XXX) to aggregate the topics. Once performed, all the documents are moved into a new group and keywords are re-generated.
+To aggregate topics, the algorithm proposed is to use the topic embeddings[^23], compute the cosine similarity matrix and use the agglomerative clustering algorithm described [here](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html) to aggregate the topics. Once performed, all the documents are moved into a new group and keywords are re-generated.
 <br/>
 With more than 100 topics, it is difficult to have a general idea of the main latent themes in the corpus. Looking back to the @fig-hierarchical-plot[^24] we can identify seven large branches we could reduce our topic model to.
 
@@ -603,7 +610,7 @@ topic_info_reduced
 |      13 | 6_detection_biosensor_biosensors_based  | ['detection', 'biosensor', 'biosensors', 'based', 'dna', 'sers', 'surface', 'splitaptamer', 'spr', 'sensor']                    |
 
 
-: Table X: **XXX** {tbl-colwidths="[10, 30, 60]" #tbl-topics-reduced}
+: Topic information after aggregating topics {#tbl-topics-reduced tbl-colwidths="[10, 30, 60]"}
 
 Similarly to before, the noise topic contains very generic keywords. As for the rest, we can identify seven[^10] main latent topics :
 
@@ -631,7 +638,7 @@ After reducing outliers, here is the distribution of topics across all out docum
 | Law, Finance and Policies                            |       5 |     410 | 6 %          |
 | Biochemisty and sensors                              |       6 |      31 | 0 %          |
 
-: Table X: **XXX** {tbl-colwidths="[50, 10, 20, 20]" #tbl-topics-reduced-stats}
+: Repartition of the theses in the 7 aggregated topics {#tbl-topics-reduced-stats tbl-colwidths="[50, 10, 20, 20]"}
 
 Finally, the 7th topic still seem very specific, even after reducing outliers, there are only 31 documents in this topic.
 
@@ -699,9 +706,9 @@ We obtain the following results:
 |       3 |     706 | ['data', 'thesis', 'systems', 'propose', 'based', 'model', 'proposed', 'approach', 'network', 'methods']             |
 |       4 |     305 | ['language', 'teachers', 'study', 'education', 'students', 'french', 'school', 'teaching', 'analysis', 'social']     |
 
-: Table X: **XXX** {tbl-colwidths="[10, 20, 70]" #tbl-topics-tuned}
+: Topic information for a coarse grained topic model {#tbl-topics-tuned tbl-colwidths="[10, 20, 70]"}
 
-![**XXX**](./assets/2D_general.png){#fig-2D-map-tuned}
+![2D map for a coarse grained topic model](./assets/2D_general.png){#fig-2D-map-tuned}
 
 ## Discussion on evaluating a topic model
 
@@ -769,8 +776,8 @@ print(f"Doc n°{text_id}:\n{docs[text_id]}")
 topics_per_class = topic_model.topics_per_class(docs, classes = is_my_document)
 topics_per_class = topics_per_class.loc[topics_per_class["Class"], :].set_index("Topic")
 # Retrieve the Topic Representation for comparison
-topics_name = (topic_model.get_topic_info().set_index("Topic")["Representation"])
-topics_per_class.loc[:,"Topic Representation"] = topics_name
+topics_name = (topic_model.get_topic_info().set_index("Topic")["Name"])
+topics_per_class.loc[:,"Topic Name"] = topics_name
 print(topics_per_class.reset_index().to_markdown())
 ```
 
@@ -779,11 +786,11 @@ print(topics_per_class.reset_index().to_markdown())
 >>> The overall objective of this thesis is to exploit a ...
 ```
 
-| Topic | Words | Frequency | Class | Topic Representation |
+| Topic | Words | Frequency | Class | Topic Name |
 |---:|:---|---:|:---|:---|
-|       3 | social, annotations, multimedia, snapshot, proposed |           1 | True    | ['data', 'thesis', 'systems', 'model', 'propose', 'based', 'approach', 'proposed', 'network', 'time'] |
+|       3 | social, annotations, multimedia, snapshot, proposed |           1 | True    | 3_data_thesis_systems_model |
 
-: Table X: **XXX** {tbl-colwidths="[10, 30, 10, 20, 30]" #tbl-reason-doc-cluster}
+: {tbl-colwidths="[10, 30, 10, 20, 30]"}
 
 If you have additional tags, it's even more powerful as you can check the keywords for a whole class:
 
@@ -824,7 +831,7 @@ get_docs_for_oai_code("ddc:300")
 |       0 | social, study, thesis, french, analysis  |          73 | Sciences sociales, sociologie, anthropologie | 0_study_analysis_social_thesis |
 |       3 | markov, volatility, smc, stochastic, em  |           1 | Sciences sociales, sociologie, anthropologie | 3_data_thesis_systems_model    |
 
-: Table X: **XXX** {tbl-colwidths="[10, 30, 10, 20, 30]" #tbl-reason-tags-cluster}
+: {tbl-colwidths="[10, 30, 10, 20, 30]"}
 
 ### Quantitative evaluation
 
@@ -847,7 +854,7 @@ We list some tips to reduce computation time and facilitate reproducibility.
 
 Pre-computing the embeddings is a good practice as it will prevent from computing them at each run, but also because it allows you to use a broader spectrum of embedding models that could ne necessarily be used with BERTopic.
 <br/>
-To embed your documents, we use the [datasets](XXX) objects to bind the embeddings to the documents together: 
+To embed your documents, we use the [datasets](https://huggingface.co/docs/datasets/index) objects to bind the embeddings to the documents together: 
 
 ```python
 from datasets import Dataset
@@ -977,10 +984,6 @@ Törnberg, A., & Törnberg, P. (2025). The aesthetics of climate misinformation�
 
 [^1]:The UMAP algorithm is very close to the t-SNE algorithm with better scaling capabilities. Another good option for the dimensionality reduction step is the PCA algorithm that will focus on the global structure. PCA is a better choice if you solely focus on the big picture (McInnes et al., 2018, p45).
 
-[^3]: "represents some degree of trade-off between fine grained and large scale manifold features" (McInnes et al., 2018, p23).
-
-[^4]: Increase if you want to add more semantic features, or decrease to remove some semantic features. The effect of adding/removing a number of features is not obvious, and you'll have to try different configurations.
-
 [^5]: To be accurate, we count for n-grams: n-grams are sequences of textual entities (tokens or words). In the context of topic modelling, 1-grams would be words, 2-grams would be sequences of 2 words and so on.
 
 [^6]: Disclaimer: You may want to highlight these dimensions to identify hate speech, for instance. Homogeneity has to be relevant to your use case and questioning your corpus is a part of the topic modelling pipeline that should not remain overlooked.
@@ -988,10 +991,6 @@ Törnberg, A., & Törnberg, P. (2025). The aesthetics of climate misinformation�
 [^8]: More information on [stratification in Pandas](https://proclusacademy.com/blog/stratified_sampling_pandas/)
 
 [^10]: We have seven topics because we asked the topic model to reduce the number of topics to seven.
-
-[^11]: Rand index, Mutual Information based scores (NMY and AMI), Homogeneity, completeness and V-measure and Fowlkes-Mallows scores.
-
-[^12]: Silhouette Coefficient, Calinski-Harabasz index and Davies-Bouldin Index. All are designed to evaluate centroïd-based clustering models (vs density-based clustering models such as HDBSCAN) such as k-Means. This means that the score is generally higher for convex clusters (round-shaped) which we don't necessarily want.
 
 [^14]: the name "transformer models" refers to a specific neural netword designed popularised by Vaswani et al. (2017), most if not all current Language models rely on this architecture.
 
@@ -1003,14 +1002,10 @@ Törnberg, A., & Törnberg, P. (2025). The aesthetics of climate misinformation�
 
 [^19]: "Pre-Trained" means that the model has already been trained on millions of documents. "Transformer" is the name of a neural network architecture broadly used in machine learning.
 
-[^20]: [source 1](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-cluster-size), [source 2](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-cluster-size)
-
-[^21]: [source 1](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-samples) [source 2](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-samples)
-
 [^22]: See [techy-notes](./techy-notes.qmd#reduce-outliers-strategies) for more information.
 
 [^23]: ie the mean of the document's embedding inside a cluster.
 
-[^24]: There is a small difference in the computation of the graph and the reduce outlier that we do not clearly understand. [See issue #XXX.](XXX).
+[^24]: There is a small difference in the computation of the graph and the reduce outlier that we do not clearly understand. [See Discussion #2453](https://github.com/MaartenGr/BERTopic/discussions/2453).
 
-[$25]: See [techy notes](techy-notes.qmd#instances-file-size-and-content) for more information on what's saved and the size of the files.
+[^25]: See [techy notes](techy-notes.qmd#instances-file-size-and-content) for more information on what's saved and the size of the files.

@@ -25,22 +25,23 @@ We recommend using the *"embeddings"* as using embeddings offer the richest repr
 
 # UMAP and HDBSCAN parameter despcription
 
+
 |Parameter  | Description | Increase | Decrease |Recommendations
 |---:|:--- |:--- |:---|:---|
-|⭐️`n_neighbors`<br/>*default 15*|This parameter defines what's considered as "close". Th |Focus on the global structure|Focus on local structures||
+|⭐️`n_neighbors`<br/>*default 15*|This parameter defines what's considered as "close". [^3]|Focus on the global structure|Focus on local structures||
 |`min_dist`<br/>*default 0.0*|This parameter is "essentially aesthetic", low values will create denser clusters|||Keep `min_dist=0.0`|
 |`n_components`<br/>*default 5*|Defines the number of dimensions of the output space.|Maintain richer representations.|Flatten the representations.|Start with `n_components=5`.<br/>Increase when the topic model does not grasp semantic subtelties<br/>Decrease when the topic model focuses on non-essential disparities of your corpus.| 
 |`metrics`<br/>*default cosine*|This parameter defines the metric used to quantify the similarity between 2 vectors|||For NLP tasks, we use the cosine metric|
 
-: Table X: UMAP Parameters table {tbl-colwidths="[10, 20, 20, 20, 40]" #tbl-umap-parameters}
+: Table X: UMAP Parameters table {#tbl-umap-parameters tbl-colwidths="[10, 20, 20, 20, 40]"}
 
 |Parameter  | Description | Increase | Decrease |Recommendations
 |---:|:--- |:--- |:---|:---|
-|⭐️`min_cluster_size`<br/>*default 10*|The minimum number of elements in a group to be considered a cluster, otherwise, it's considered as noise |Generate few large and generic groups.|Generate many small and highly specific groups.|Start with a rather large value and reduce incrementally until obtaining a fine grained topic model|
-|`min_samples`<br/>*default None*|The number of samples in a neighbourhood for a point to be considered as a core point|The algorithm is conservative, only large groups will remain.|Allow for small groups.|In our experience, tuning `min_cluster_size` and leaving `min_samples = min_cluster_size` is enough for most cases[^20].|
+|⭐️`min_cluster_size`<br/>*default 10*|The minimum number of elements in a group to be considered a cluster, otherwise, it's considered as noise |Generate few large and generic groups.|Generate many small and highly specific groups.|Start with a rather large value and reduce incrementally until obtaining a fine grained topic model[^20]|
+|`min_samples`<br/>*default None*|The number of samples in a neighbourhood for a point to be considered as a core point|The algorithm is conservative, only large groups will remain.|Allow for small groups.|In our experience, tuning `min_cluster_size` and leaving `min_samples = min_cluster_size` is enough for most cases[^21].|
 |`metrics`<br/>*default eucidean*|This parameter defines the metric used to quantify the distance between 2 docs|||The metric should not me switched to `cosine` because we are not working in the embedding space anymore.|
 
-: Table X: HDBSCAN Parameters table {tbl-colwidths="[10, 20, 20, 20, 40]" #tbl-hdbscan-parameters}
+: Table X: HDBSCAN Parameters table {#tbl-hdbscan-parameters tbl-colwidths="[10, 20, 20, 20, 40]"}
 
 # Instances file size and content
 
@@ -52,7 +53,7 @@ We recommend using the *"embeddings"* as using embeddings offer the richest repr
 | `ctfidf_config.json` (~2.1 MB)                                               | The configuration to recreate the weighting scheme object (`ClassTfidfTransformer`) and the vectorizer model (`CountVectorizer`) including the stop words and the vocabulary with the number of occurrences for for each element. | ❌                    |
 | `ctfidf.safetensors` (~4 MB) or `ctfidf.bin` (~4 MB)                         | the c-TF-IDF representations, a topic x n-grams table.<br>shape: $(n_{topics}\times n_{n-grams})$                                                                                                                                 | ❌                    |
 
-: Table X: **XXX** {tbl-colwidths="[30, 50, 20]" #tbl-topics-reduced-stats}
+: Table X: **XXX** {#tbl-save-file-sizes tbl-colwidths="[30, 50, 20]"}
 
 _Note: the sizes provided correspond to a vectorizer model only counting unigrams. If you account for the bigrams, the size of the files grows exponentially._
 
@@ -76,4 +77,14 @@ Beer, A., Krieger, L., Weber, P., Ritzert, M., Assent, I., & Plant, C. (2025). D
 
 Moulavi, D., Jaskowiak, P. A., Campello, R. J. G. B., Zimek, A., & Sander, J. (2014). Density-Based Clustering Validation. Proceedings of the 2014 SIAM International Conference on Data Mining, 839‑847. https://doi.org/10.1137/1.9781611973440.96
 
+[^3]: "represents some degree of trade-off between fine grained and large scale manifold features" (McInnes et al., 2018, p23).
+
+[^11]: Rand index, Mutual Information based scores (NMY and AMI), Homogeneity, completeness and V-measure and Fowlkes-Mallows scores.
+
+[^12]: Silhouette Coefficient, Calinski-Harabasz index and Davies-Bouldin Index. All are designed to evaluate centroïd-based clustering models (vs density-based clustering models such as HDBSCAN) such as k-Means. This means that the score is generally higher for convex clusters (round-shaped) which we don't necessarily want.
+
 [^13]: The index was designed by the same team that designed HDBSCAN (Campello et al., 2013)
+
+[^20]: [source 1](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-cluster-size), [source 2](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-cluster-size)
+
+[^21]: [source 1](https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#selecting-min-samples) [source 2](https://scikit-learn.org/stable/auto_examples/cluster/plot_hdbscan.html#min-samples)
